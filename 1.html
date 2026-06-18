@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VITALIS — Primeros Auxilios</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:    #0B1F3A;
+    --navy-2:  #102847;
+    --navy-3:  #183560;
+    --crimson: #D9232D;
+    --crimson-soft: #FF3B47;
+    --teal:    #1AAFA0;
+    --teal-soft: #22CDB8;
+    --amber:   #F5A623;
+    --white:   #F7F9FB;
+    --gray-1:  #C8D2DF;
+    --gray-2:  #8495AB;
+    --success: #22A86B;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body:    'Inter', sans-serif;
+  }
+
+  html, body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: var(--font-body);
+    min-height: 100vh;
+  }
+
+  /* ── LAYOUT ── */
+  .app-shell {
+    max-width: 420px;
+    margin: 0 auto;
+    min-height: 100vh;
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px 0;
+    font-size: 12px;
+    color: var(--gray-1);
+    font-family: var(--font-display);
+  }
+  .status-bar .time { font-weight: 700; font-size: 14px; color: var(--white); }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+
+  /* ── TOP NAV ── */
+  .top-nav {
+    padding: 16px 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 26px;
+    color: var(--white);
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .logo span { color: var(--teal); }
+  .logo-sub {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--gray-2);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .profile-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--navy-3);
+    border: 2px solid var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  /* ── SEARCH ── */
+  .search-wrap { padding: 18px 20px 0; }
+  .search-box {
+    background: var(--navy-2);
+    border: 1.5px solid var(--navy-3);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 10px;
+    transition: border-color .2s;
+  }
+  .search-box:focus-within { border-color: var(--teal); }
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 15px;
+    flex: 1;
+  }
+  .search-box input::placeholder { color: var(--gray-2); }
+  .search-icon { color: var(--gray-2); font-size: 16px; }
+
+  /* ── SOS BUTTON (va a ser necesario mover chance choque pero a la mejor no esperemos :) ── */
+  .sos-section {
+    padding: 24px 20px 0;
+    display: flex;
+    justify-content: center;
+  }
+  .sos-outer {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @keyframes pulse-ring {
+    0%   { transform: scale(1);   opacity: .5; }
+    70%  { transform: scale(1.35); opacity: 0; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+  @keyframes pulse-ring2 {
+    0%   { transform: scale(1);   opacity: .3; }
+    70%  { transform: scale(1.55); opacity: 0; }
+    100% { transform: scale(1.55); opacity: 0; }
+  }
+  .pulse-ring {
+    position: absolute;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: var(--crimson);
+    animation: pulse-ring 2s cubic-bezier(.455,.03,.515,.955) infinite;
+  }
+  .pulse-ring2 {
+    position: absolute;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: var(--crimson);
+    animation: pulse-ring2 2s cubic-bezier(.455,.03,.515,.955) .4s infinite;
+  }
+  .sos-btn {
+    position: relative;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, var(--crimson-soft), var(--crimson));
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px rgba(217,35,45,.5), 0 8px 24px rgba(0,0,0,.4);
+    transition: transform .1s;
+    z-index: 2;
+  }
+  .sos-btn:active { transform: scale(.96); }
+  .sos-icon { font-size: 32px; line-height: 1; }
+  .sos-label {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: #fff;
+    margin-top: 2px;
+  }
+  .sos-caption {
+    text-align: center;
+    font-size: 11px;
+    color: var(--gray-2);
+    margin-top: 10px;
+    font-weight: 500;
+    letter-spacing: .3px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 28px 20px 12px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--white);
+  }
+
+  /* ── CATEGORY PILLS ── */
+  .pills {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .pills::-webkit-scrollbar { display: none; }
+  .pill {
+    flex-shrink: 0;
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid transparent;
+    transition: all .15s;
+    font-family: var(--font-display);
+  }
+  .pill.active { background: var(--teal); color: var(--navy); border-color: var(--teal); }
+  .pill.inactive { background: var(--navy-2); color: var(--gray-1); border-color: var(--navy-3); }
+  .pill:hover:not(.active) { border-color: var(--teal); color: var(--teal); }
+
+  /* ── EMERGENCY CARDS ── */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+  .card {
+    background: var(--navy-2);
+    border-radius: 18px;
+    padding: 18px 14px 16px;
+    cursor: pointer;
+    border: 1.5px solid var(--navy-3);
+    transition: all .18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 18px 18px 0 0;
+  }
+  .card.red::before   { background: var(--crimson); }
+  .card.teal::before  { background: var(--teal); }
+  .card.amber::before { background: var(--amber); }
+  .card.blue::before  { background: #4A90D9; }
+  
+  .card:hover, .card:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .card.red { border-color: rgba(217,35,45,.4); color: var(--crimson-soft); }
+  .card.teal { border-color: rgba(26,175,160,.4); color: var(--teal-soft); }
+  .card.amber { border-color: rgba(245,166,35,.4); color: var(--amber); }
+  .card.blue { border-color: rgba(74,144,217,.4); color: #4A90D9; }
+
+  .card-icon {
+    font-size: 30px;
+    display: block;
+    margin-bottom: 10px;
+    line-height: 1;
+  }
+  .card-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--white);
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+  .card-steps {
+    font-size: 11px;
+    color: var(--gray-2);
+    font-weight: 500;
+  }
+  .card-badge {
+    position: absolute;
+    top: 14px; right: 12px;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .badge-critical { background: rgba(217,35,45,.2); color: var(--crimson-soft); }
+  .badge-offline  { background: rgba(26,175,160,.15); color: var(--teal-soft); }
+
+  /* ── BOTTOM NAV ── */
+  .bottom-nav {
+    margin-top: auto;
+    padding: 0 20px 28px;
+    display: flex;
+    justify-content: space-around;
+    background: linear-gradient(to top, var(--navy) 80%, transparent);
+    padding-top: 20px;
+    z-index: 10;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 12px;
+    transition: background .15s;
+  }
+  .nav-item.active { background: rgba(26,175,160,.12); }
+  .nav-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .3px;
+    font-family: var(--font-display);
+    color: var(--gray-2);
+  }
+  .nav-item.active .nav-label { color: var(--teal); }
+
+  /* ── SCREENS CONTROL ── */
+  .screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    animation: fadeIn .2s ease;
+  }
+  .screen.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  #screen-home, #screen-profile, #screen-learn { flex: 1; overflow-y: auto; padding-bottom: 100px; }
+
+  /* ── GUIDE SCREEN ── */
+  #screen-guide { flex: 1; background: var(--navy); overflow-y: auto; padding-bottom: 40px; }
+  .guide-header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid var(--navy-3);
+  }
+  .back-btn {
+    width: 38px; height: 38px;
+    background: var(--navy-2);
+    border: 1.5px solid var(--navy-3);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .guide-title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--white);
+  }
+  .guide-sub { font-size: 12px; color: var(--gray-2); margin-top: 1px; }
+
+  .step-progress { padding: 16px 20px 0; }
+  .step-track { display: flex; gap: 6px; margin-bottom: 8px; }
+  .step-dot {
+    flex: 1; height: 4px; border-radius: 4px;
+    background: var(--navy-3); transition: background .3s;
+  }
+  .step-dot.done   { background: var(--teal); }
+  .step-dot.active { background: var(--crimson); }
+  .step-info {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--gray-2); font-weight: 500;
+  }
+
+  .step-card {
+    margin: 20px; background: var(--navy-2);
+    border-radius: 22px; padding: 24px;
+    border: 1.5px solid var(--navy-3);
+  }
+  .step-number {
+    font-family: var(--font-display); font-size: 11px; font-weight: 700;
+    color: var(--crimson); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px;
+  }
+  .step-heading {
+    font-family: var(--font-display); font-weight: 800; font-size: 22px;
+    color: var(--white); line-height: 1.2; margin-bottom: 14px;
+  }
+  .step-body { font-size: 15px; color: var(--gray-1); line-height: 1.6; margin-bottom: 20px; }
+  .step-tip {
+    background: rgba(26,175,160,.1); border-left: 3px solid var(--teal);
+    border-radius: 0 10px 10px 0; padding: 12px 14px;
+    font-size: 13px; color: var(--teal-soft); line-height: 1.5; margin-bottom: 20px;
+  }
+
+  /* TIMER CSS */
+  .timer-ring { display: none; justify-content: center; margin-bottom: 20px; }
+  .timer-circle { position: relative; width: 100px; height: 100px; }
+  .timer-svg { transform: rotate(-90deg); }
+  .timer-track { fill: none; stroke: var(--navy-3); stroke-width: 6; }
+  .timer-fill {
+    fill: none; stroke: var(--crimson); stroke-width: 6; stroke-linecap: round;
+    stroke-dasharray: 251.2; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear;
+  }
+  .timer-text {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; font-family: var(--font-display);
+    font-weight: 800; font-size: 22px; color: var(--white); line-height: 1;
+  }
+  .timer-text span { font-size: 11px; color: var(--gray-2); font-weight: 500; }
+
+  .step-actions { padding: 0 20px 10px; display: flex; gap: 12px; }
+  .btn-voice {
+    width: 52px; height: 52px; border-radius: 14px;
+    background: var(--navy-2); border: 1.5px solid var(--navy-3);
+    font-size: 22px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .btn-next {
+    flex: 1; height: 52px; border-radius: 14px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-soft));
+    border: none; color: var(--navy); font-family: var(--font-display);
+    font-weight: 700; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: 0 4px 20px rgba(26,175,160,.35);
+  }
+
+  /* MAP SCREEN */
+  #screen-map { flex: 1; background: var(--navy); overflow-y: auto; padding-bottom: 80px; }
+  .map-header { padding: 20px 20px 16px; font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+  .map-placeholder {
+    margin: 0 20px; border-radius: 18px; height: 180px; background: var(--navy-2);
+    border: 1.5px solid var(--navy-3); display: flex; align-items: center;
+    justify-content: center; flex-direction: column; gap: 8px; color: var(--gray-2); font-size: 14px;
+  }
+  .map-emoji { font-size: 40px; }
+  .hospital-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .hospital-item {
+    background: var(--navy-2); border-radius: 14px; padding: 14px 16px;
+    border: 1.5px solid var(--navy-3); display: flex; align-items: center; gap: 14px;
+  }
+  .hospital-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+  .hospital-icon.red   { background: rgba(217,35,45,.15); }
+  .hospital-icon.teal  { background: rgba(26,175,160,.15); }
+  .hospital-icon.amber { background: rgba(245,166,35,.15); }
+  .hospital-info { flex: 1; }
+  .hospital-name { font-family: var(--font-display); font-weight: 600; font-size: 14px; }
+  .hospital-dist { font-size: 12px; color: var(--gray-2); margin-top: 2px; }
+  .hospital-open { font-size: 11px; font-weight: 600; color: var(--success); background: rgba(34,168,107,.12); padding: 3px 8px; border-radius: 6px; }
+
+  /* PROFILE SCREEN */
+  .profile-hero { padding: 24px 20px 20px; text-align: center; border-bottom: 1px solid var(--navy-3); }
+  .avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--navy-3); border: 3px solid var(--teal); margin: 0 auto 12px; font-size: 32px; display: flex; align-items: center; justify-content: center; }
+  .profile-name { font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+  .profile-sub { font-size: 13px; color: var(--gray-2); margin-top: 3px; }
+  .blood-badge { display: inline-block; background: rgba(217,35,45,.15); color: var(--crimson-soft); font-family: var(--font-display); font-weight: 700; font-size: 13px; padding: 5px 14px; border-radius: 20px; margin-top: 10px; border: 1px solid rgba(217,35,45,.3); }
+  .med-section { padding: 20px 20px 0; }
+  .med-label { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--gray-2); text-transform: uppercase; margin-bottom: 10px; }
+  .med-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .med-tag { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 8px; background: var(--navy-2); border: 1.5px solid var(--navy-3); color: var(--gray-1); }
+  .med-tag.allergy { border-color: rgba(245,166,35,.4); color: var(--amber); background: rgba(245,166,35,.08); }
+  .contact-card { background: var(--navy-2); border-radius: 14px; padding: 14px 16px; border: 1.5px solid var(--navy-3); display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .contact-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--navy-3); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .contact-name { font-weight: 600; font-size: 14px; }
+  .contact-rel { font-size: 12px; color: var(--gray-2); }
+  .contact-call { margin-left: auto; width: 36px; height: 36px; border-radius: 50%; background: rgba(26,175,160,.15); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; }
+
+  /* OFFLINE CHIP */
+  .offline-chip { display: flex; align-items: center; gap: 6px; background: rgba(26,175,160,.08); border: 1px solid rgba(26,175,160,.2); border-radius: 8px; padding: 8px 12px; margin: 12px 20px 0; font-size: 12px; color: var(--teal-soft); font-weight: 500; }
+  .offline-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); }
+
+  /* LEARN SCREEN */
+  .learn-card { margin: 0 20px 12px; background: var(--navy-2); border-radius: 18px; overflow: hidden; border: 1.5px solid var(--navy-3); }
+  .learn-thumb { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 36px; position: relative; }
+  .learn-thumb.red   { background: linear-gradient(135deg, rgba(217,35,45,.3), rgba(217,35,45,.1)); }
+  .learn-thumb.teal  { background: linear-gradient(135deg, rgba(26,175,160,.3), rgba(26,175,160,.1)); }
+  .learn-thumb.amber { background: linear-gradient(135deg, rgba(245,166,35,.3), rgba(245,166,35,.1)); }
+  .play-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.5); border-radius: 20px; padding: 3px 10px; font-size: 10px; color: #fff; font-weight: 600; }
+  .learn-info { padding: 14px 16px; }
+  .learn-title { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .learn-meta { display: flex; gap: 12px; font-size: 12px; color: var(--gray-2); }
+  .learn-prog { height: 3px; background: var(--navy-3); margin: 10px 0 0; border-radius: 2px; overflow: hidden; }
+  .learn-prog-fill { height: 100%; background: var(--teal); border-radius: 2px; }
+
+  @media (min-width: 500px) {
+    .app-shell { border-radius: 40px; margin: 30px auto; min-height: calc(100vh - 60px); box-shadow: 0 40px 100px rgba(0,0,0,.7), 0 0 0 10px rgba(255,255,255,.04); }
+    body { background: #060D18; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+ 
+  <div class="status-bar">
+    <span class="time" id="device-time">00:00</span>
+    <div class="status-icons">
+      <span>●●●</span>
+      <span>WiFi</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <div id="screen-home" class="screen active">
+    <div class="top-nav">
+      <div>
+        <div class="logo">VITA<span>LIS</span></div>
+        <div class="logo-sub">Primeros Auxilios</div>
+      </div>
+      <div class="profile-btn" onclick="showScreen('profile')">👤</div>
+    </div>
+
+    <div class="offline-chip">
+      <div class="offline-dot"></div>
+      Protocolos locales activos (SQLite)
+    </div>
+
+    <div class="search-wrap">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Buscar emergencia…" oninput="filterEmergencies()">
+      </div>
+    </div>
+
+    <div class="sos-section">
+      <div>
+        <div class="sos-outer">
+          <div class="pulse-ring2"></div>
+          <div class="pulse-ring"></div>
+          <button class="sos-btn" id="sos-btn-trigger">
+            <span class="sos-icon">🆘</span>
+            <span class="sos-label">SOS</span>
+          </button>
+        </div>
+        <p class="sos-caption">Presiona para activar · Alerta GPS a contactos</p>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <span class="section-title">Categorías</span>
+    </div>
+
+    <div class="pills" id="category-pills-container">
+      <div class="pill active" onclick="filterCategory('Todas', this)">Todas</div>
+      <div class="pill inactive" onclick="filterCategory('Críticas', this)">Críticas</div>
+      <div class="pill inactive" onclick="filterCategory('Respiración', this)">Respiración</div>
+      <div class="pill inactive" onclick="filterCategory('Traumas', this)">Traumas</div>
+      <div class="pill inactive" onclick="filterCategory('Quemaduras', this)">Quemaduras</div>
+    </div>
+
+    <div class="cards-grid" id="emergencies-grid">
+      </div>
+  </div>
+
+
+  <div id="screen-guide" class="screen">
+    <div class="guide-header">
+      <div class="back-btn" onclick="showScreen('home')">←</div>
+      <div>
+        <div class="guide-title" id="guide-main-title">Cargando...</div>
+        <div class="guide-sub" id="guide-sub-title">Guía paso a paso</div>
+      </div>
+    </div>
+
+    <div class="step-progress">
+      <div class="step-track" id="step-dots-container">
+        </div>
+      <div class="step-info">
+        <span id="step-counter-text">Paso 1 de 1</span>
+        <span style="color:var(--crimson); font-weight:600;">● En curso</span>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-number" id="step-card-number">Paso 1</div>
+      <div class="step-heading" id="step-card-heading">Cargando instrucción...</div>
+      <div class="step-body" id="step-card-body">
+        Por favor espera un momento.
+      </div>
+      <div class="step-tip" id="step-card-tip">
+        Cargando consejo médico...
+      </div>
+      
+      <div class="timer-ring" id="timer-ring-wrapper">
+        <div class="timer-circle">
+          <svg class="timer-svg" width="100" height="100" viewBox="0 0 100 100">
+            <circle class="timer-track" cx="50" cy="50" r="40"/>
+            <circle class="timer-fill" id="timerArc" cx="50" cy="50" r="40"/>
+          </svg>
+          <div class="timer-text">
+            <div id="timerDisplay">0:30</div>
+            <span>seg/ciclo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-voice" id="btn-audio-speak" title="Leer en voz alta">🔊</button>
+      <button class="btn-next" id="btn-next-step" onclick="nextStep()">
+        Siguiente paso →
+      </button>
+    </div>
+  </div>
+
+
+  <div id="screen-map" class="screen">
+    <div class="map-header">Centros de Atención</div>
+    <div class="map-placeholder">
+      <div class="map-emoji">🗺️</div>
+      <div>Mapa de hospitales y farmacias</div>
+      <div style="font-size:12px;color:var(--teal-soft)">GPS Activo · Sincronizado localmente</div>
+    </div>
+
+    <div class="hospital-list">
+      <div class="hospital-item">
+        <div class="hospital-icon red">🏥</div>
+        <div class="hospital-info">
+          <div class="hospital-name">IMSS Unidad Médica</div>
+          <div class="hospital-dist">1.2 km · ~4 min en auto</div>
+        </div>
+        <span class="hospital-open">Abierto</span>
+      </div>
+      <div class="hospital-item">
+        <div class="hospital-icon teal">🚑</div>
+        <div class="hospital-info">
+          <div class="hospital-name">Cruz Roja Delegación</div>
+          <div class="hospital-dist">2.8 km · ~8 min en auto</div>
+        </div>
+        <span class="hospital-open">24 hrs</span>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="screen-learn" class="screen">
+    <div class="section-header">
+      <span class="section-title">Aprende antes de necesitarlo</span>
+    </div>
+    <div class="learn-card">
+      <div class="learn-thumb red">❤️<span class="play-badge">▶️ 4:30</span></div>
+      <div class="learn-info">
+        <div class="learn-title">RCP para adultos — Guía completa</div>
+        <div class="learn-meta"><span>🎓 Certificado OMS</span><span>⭐ 4.9</span></div>
+        <div class="learn-prog"><div class="learn-prog-fill" style="width:65%"></div></div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="screen-profile" class="screen">
+    <div class="profile-hero">
+      <div class="avatar">🙍</div>
+      <div class="profile-name">Meza Bustillos Katherine</div>
+      <div class="profile-sub">Perfil médico de emergencia</div>
+      <div class="blood-badge">🩸 Tipo O+</div>
+    </div>
+
+    <div class="med-section">
+      <div class="med-label">Condiciones médicas</div>
+      <div class="med-tags"><span class="med-tag">Ninguna registrada</span></div>
+      <div class="med-label">Alergias crónicas</div>
+      <div class="med-tags"><span class="med-tag allergy">⚠️ Ninguna detectada</span></div>
+      <div class="med-label">Contactos de emergencia</div>
+      <div class="contact-card">
+        <div class="contact-avatar">👩</div>
+        <div>
+          <div class="contact-name">Contacto de Confianza</div>
+          <div class="contact-rel">Familiar asignado</div>
+        </div>
+        <button class="contact-call" onclick="alert('Marcando al contacto asignado...')">📞</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="showScreen('home')">
+      <span class="nav-icon">🏠</span><span class="nav-label">Inicio</span>
+    </div>
+    <div class="nav-item" id="nav-map" onclick="showScreen('map')">
+      <span class="nav-icon">📍</span><span class="nav-label">Mapa</span>
+    </div>
+    <div class="nav-item" id="nav-learn" onclick="showScreen('learn')">
+      <span class="nav-icon">📚</span><span class="nav-label">Aprender</span>
+    </div>
+    <div class="nav-item" id="nav-profile" onclick="showScreen('profile')">
+      <span class="nav-icon">👤</span><span class="nav-label">Perfil</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+    // modelado de base de datos local a peticion de un tunel o necesario tal vez, hora funcional procesos eliminadosz funcionalidad extensa de manera con mensajes locales :) ──
+  // ── BASE DE DATOS LOCAL SIMULADA (MOCK SQLITE INTERNO) ──
+  const DB_PROTOCOLS = [
+    {
+      id: "paro",
+      title: "Paro Cardíaco",
+      icon: "❤️",
+      category: "Críticas",
+      badge: "Crítico",
+      badgeClass: "badge-critical",
+      colorClass: "red",
+      subTitle: "RCP · Maniobra de reanimación",
+      steps: [
+        { heading: "Verificar respuesta del paciente", body: "Sacude suavemente sus hombros y pregunta en voz alta: ¿Se encuentra bien? Si no responde, pasa al siguiente paso inmediatamente.", tip: "Mantén la calma y actúa con firmeza.", timer: false },
+        { heading: "Llamar a emergencias", body: "Pide ayuda en voz alta. Si estás solo, llama al 911 de inmediato usando altavoz.", tip: "Especifica que estás ante un posible paro cardíaco.", timer: false },
+        { heading: "Inicia las compresiones torácicas", body: "Coloca el talón de una mano en el centro del pecho. Entrelaza tus manos y comprime fuerte y rápido con los brazos completamente rectos.", tip: "Sigue el ritmo del cronómetro integrado (100-120 bpm).", timer: true }
+      ]
+    },
+    {
+      id: "asfixia",
+      title: "Asfixia / Atragantamiento",
+      icon: "🫁",
+      category: "Respiración",
+      badge: "Offline",
+      badgeClass: "badge-offline",
+      colorClass: "red",
+      subTitle: "Maniobra de Heimlich",
+      steps: [
+        { heading: "Evaluar la tos del paciente", body: "Si el paciente está latiendo o tosiendo con fuerza, anímalo a seguir tosiendo de forma autónoma. No golpees su espalda.", tip: "Intervén únicamente si deja de emitir sonidos por completo.", timer: false },
+        { heading: "Realizar compresiones abdominales", body: "Colócate detrás, rodea su cintura con tus brazos. Haz un puño con una mano justo arriba del ombligo y presiona con fuerza hacia adentro y hacia arriba.", tip: "Repite el movimiento firmemente hasta expulsar el objeto obstaculizador.", timer: false }
+      ]
+    },
+    {
+      id: "hemorragia",
+      title: "Hemorragia Severa",
+      icon: "🩸",
+      category: "Traumas",
+      badge: "Offline",
+      badgeClass: "badge-offline",
+      colorClass: "teal",
+      subTitle: "Control de sangrado masivo",
+      steps: [
+        { heading: "Presión directa e inmediata", body: "Coloca un paño limpio o gasa directamente sobre la herida abierta y ejerce una presión manual firme y constante sin retirar la tela.", tip: "Si la sangre empapa el paño, no lo quites; añade otro encima.", timer: false },
+        { heading: "Aplicación de vendaje compresivo", body: "Envuelve firmemente la zona afectada con una venda manteniendo la presión aplicada sobre la herida original.", tip: "Monitorea constantemente que la extremidad no cambie a un color morado.", timer: false }
+      ]
+    },
+    {
+      id: "quemaduras",
+      title: "Quemaduras",
+      icon: "🔥",
+      category: "Quemaduras",
+      badge: "",
+      badgeClass: "",
+      colorClass: "amber",
+      subTitle: "Tratamiento térmico inicial",
+      steps: [
+        { heading: "Enfriar la zona afectada", body: "Coloca la quemadura bajo el chorro de agua fría o templada durante al menos 10 a 15 minutos consecutivos. No utilices hielo directo.", tip: "El agua fría detiene la progresión del daño térmico celular.", timer: false },
+        { heading: "Proteger la quemadura", body: "Cubre suavemente la superficie dañada con una gasa estéril o un paño completamente limpio y seco sin presionar.", tip: "Bajo ninguna circunstancia apliques remedios caseros como pasta dental.", timer: false }
+      ]
+    }
+  ];
+
+  // ── ESTADO GLOBAL DE LA APLICACIÓN ──
+  let currentProtocol = null;
+  let currentStepIndex = 0;
+  let timerInterval = null;
+  let timerSec = 30;
+  const circumference = 2 * Math.PI * 40;
+
+  // ── SISTEMA DE NAVEGACIÓN ENTRE PANTALLAS ──
+  const screens = ['home', 'guide', 'map', 'learn', 'profile'];
+  const navMap = { home: 'nav-home', map: 'nav-map', learn: 'nav-learn', profile: 'nav-profile' };
+
+  function showScreen(name) {
+    screens.forEach(s => {
+      document.getElementById('screen-' + s).classList.toggle('active', s === name);
+    });
+    Object.entries(navMap).forEach(([screen, id]) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('active', screen === name);
+    });
+    // Si salimos de la guía, detenemos cronómetros
+    if (name !== 'guide') clearInterval(timerInterval);
+  }
+
+  // ── INICIALIZACIÓN DE LA INTERFAZ MÓVIL ──
+  document.addEventListener("DOMContentLoaded", () => {
+    // Reloj dinámico de la barra de estado superior
+    const updateClock = () => {
+      const now = new Date();
+      document.getElementById("device-time").textContent = 
+        String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+    };
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Renderizar tarjetas iniciales desde la BD simulada
+    renderCards(DB_PROTOCOLS);
+
+    // Configurar trigger del botón SOS
+    document.getElementById("sos-btn-trigger").addEventListener("click", () => {
+      alert("🚨 ALERTA SOS ACTIVADA\n\n1. Marcando de inmediato al 911...\n2. Ubicación GPS obtenida: Lat: 19.60, Long: -99.03\n3. Enviando SMS de alerta con coordenadas exactas a tus contactos de confianza.");
+    });
+
+    // Configurar botón de accesibilidad Text-to-Speech
+    document.getElementById("btn-audio-speak").addEventListener("click", () => {
+      if (currentProtocol) {
+        const step = currentProtocol.steps[currentStepIndex];
+        const speechText = ${step.heading}. ${step.body};
+        
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(speechText);
+          utterance.lang = 'es-MX';
+          window.speechSynthesis.speak(utterance);
+        } else {
+          alert(🔊 [Lectura por voz activada]:\n\n"${speechText}");
+        }
+      }
+    });
+  });
+
+  // ── INYECCIÓN DINÁMICA DE TARJETAS ──
+  function renderCards(protocolsList) {
+    const grid = document.getElementById("emergencies-grid");
+    grid.innerHTML = "";
+    
+    if (protocolsList.length === 0) {
+      grid.innerHTML = <p style="grid-column: 1/-1; text-align:center; padding:20px; color:var(--gray-2);">No se encontraron emergencias coincidentes.</p>;
+      return;
+    }
+
+    protocolsList.forEach(p => {
+      const card = document.createElement("div");
+      card.className = card ${p.colorClass};
+      card.onclick = () => launchProtocol(p.id);
+
+      let badgeHTML = p.badge ? <span class="card-badge ${p.badgeClass}">${p.badge}</span> : "";
+
+      card.innerHTML = `
+        ${badgeHTML}
+        <span class="card-icon">${p.icon}</span>
+        <div class="card-title">${p.title}</div>
+        <div class="card-steps">${p.steps.length} pasos</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  // ── FILTROS Y BÚSQUEDAS (MÓDULO 1) ──
+  let activeCategory = "Todas";
+
+  function filterCategory(category, element) {
+    activeCategory = category;
+    document.querySelectorAll("#category-pills-container .pill").forEach(p => {
+      p.className = "pill inactive";
+    });
+    element.className = "pill active";
+    filterEmergencies();
+  }
+
+  function filterEmergencies() {
+    const query = document.getElementById("search-input").value.toLowerCase().trim();
+    const filtered = DB_PROTOCOLS.filter(p => {
+      const matchesSearch = p.title.toLowerCase().includes(query);
+      const matchesCategory = (activeCategory === "Todas" || p.category === activeCategory);
+      return matchesSearch && matchesCategory;
+    });
+    renderCards(filtered);
+  }
+
+  // ── MOTOR INTERACTIVO DE GUÍA PASO A PASO (MÓDULO 2) ──
+  function launchProtocol(id) {
+    currentProtocol = DB_PROTOCOLS.find(p => p.id === id);
+    currentStepIndex = 0;
+    
+    document.getElementById("guide-main-title").textContent = currentProtocol.title;
+    document.getElementById("guide-sub-title").textContent = currentProtocol.subTitle;
+    
+    // Dibujar los puntitos superiores de progreso
+    const dotsContainer = document.getElementById("step-dots-container");
+    dotsContainer.innerHTML = "";
+    currentProtocol.steps.forEach(() => {
+      const dot = document.createElement("div");
+      dot.className = "step-dot";
+      dotsContainer.appendChild(dot);
+    });
+
+    renderCurrentStep();
+    showScreen('guide');
+  }
+
+  function renderCurrentStep() {
+    if (!currentProtocol) return;
+    const step = currentProtocol.steps[currentStepIndex];
+    const totalSteps = currentProtocol.steps.length;
+
+    // Actualizar textos de la UI
+    document.getElementById("step-counter-text").textContent = Paso ${currentStepIndex + 1} de ${totalSteps};
+    document.getElementById("step-card-number").textContent = Paso ${currentStepIndex + 1};
+    document.getElementById("step-card-heading").textContent = step.heading;
+    document.getElementById("step-card-body").textContent = step.body;
+    document.getElementById("step-card-tip").textContent = 💡 ${step.tip};
+
+    // Actualizar los puntitos de progreso
+    const dots = document.querySelectorAll("#step-dots-container .step-dot");
+    dots.forEach((dot, idx) => {
+      dot.className = "step-dot";
+      if (idx < currentStepIndex) dot.classList.add("done");
+      if (idx === currentStepIndex) dot.classList.add("active");
+    });
+
+    // Cambiar texto de botón si es el último paso
+    const nextBtn = document.getElementById("btn-next-step");
+    if (currentStepIndex === totalSteps - 1) {
+      nextBtn.innerHTML = "Finalizar Protocolo ✓";
+      nextBtn.style.background = "linear-gradient(135deg, var(--success), var(--teal-soft))";
+    } else {
+      nextBtn.innerHTML = "Siguiente paso →";
+      nextBtn.style.background = "linear-gradient(135deg, var(--teal), var(--teal-soft))";
+    }
+
+    // Administrar cronómetro si el paso lo requiere (ej. Maniobra RCP)
+    const timerWrapper = document.getElementById("timer-ring-wrapper");
+    clearInterval(timerInterval);
+    
+    if (step.timer) {
+      timerWrapper.style.display = "flex";
+      resetTimer();
+    } else {
+      timerWrapper.style.display = "none";
+    }
+  }
+
+  function nextStep() {
+    const totalSteps = currentProtocol.steps.length;
+    if (currentStepIndex < totalSteps - 1) {
+      currentStepIndex++;
+      renderCurrentStep();
+    } else {
+      // Fin del protocolo, regresamos a casa de forma segura
+      alert("Excelente labor. El protocolo de auxilio ha concluido. Retornando al inicio.");
+      showScreen('home');
+    }
+  }
+
+  // ── MANEJO DEL CRONÓMETRO INTERNO ──
+  function resetTimer() {
+    timerSec = 30;
+    const arc = document.getElementById('timerArc');
+    const display = document.getElementById('timerDisplay');
+    
+    arc.style.strokeDashoffset = 0;
+    display.textContent = '0:30';
+
+    timerInterval = setInterval(() => {
+      timerSec--;
+      if (timerSec < 0) {
+        timerSec = 30; // Ciclo continuo para RCP
+      }
+      const offset = circumference * (1 - timerSec / 30);
+      arc.style.strokeDashoffset = offset;
+      display.textContent = '0:' + String(timerSec).padStart(2, '0');
+    }, 1000);
+  }
+</script>
+
+</body>
+</html>
