@@ -1,0 +1,13 @@
+{
+  "appId": "com.utt.vitalis",
+  "appName": "VITALIS",
+  "webDir": "www",
+  "server": {
+    "url": "https://gold-penguin-946174.hostingersite.com",
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}

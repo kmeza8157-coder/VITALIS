@@ -1,0 +1,25 @@
+{
+  "name": "VITALIS — Primeros Auxilios",
+  "short_name": "VITALIS",
+  "description": "App offline-first de primeros auxilios con protocolos clínicamente validados, perfil médico personal y localización de hospitales cercanos.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1F3A",
+  "theme_color": "#0B1F3A",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
