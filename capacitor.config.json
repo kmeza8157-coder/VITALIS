@@ -3,7 +3,7 @@
   "appName": "VITALIS",
   "webDir": "www",
   "server": {
-    "url": "https://gold-penguin-946174.hostingersite.com",
+    "url": "https://vitalis.ink",
     "androidScheme": "https",
     "cleartext": false
   },
